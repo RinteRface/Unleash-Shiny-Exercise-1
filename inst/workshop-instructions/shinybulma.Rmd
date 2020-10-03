@@ -13,14 +13,13 @@ library(shiny)
 ```
 
 ## About bulma
-[bulma](https://bulma.io/) is a more and more popular open source CSS framework for the web. Importantly, there **isn't** any JavaScript helper in the bulma core. We'll see later that the recent [bulma JS](https://bulmajs.tomerbe.co.uk/) provide such feature. For now, let's focus on HTML and CSS.
+[bulma](https://bulma.io/) is a more and more popular open source CSS framework for the web. Importantly, there **isn't** any JavaScript helper in the bulma core. We'll see later that the recent [bulma JS](https://bulmajs.tomerbe.co.uk/) provides such feature. For now, we only focus on HTML and CSS.
 
 ## Bulma: get started
-The first thing to do is to review the **Getting started [guide](https://bulma.io/documentation/overview/start/)**. To install bulma dependencies, there are 3 way. For convenience, we'll choose the CDN method (content delivery network) which consists in getting dependencies from a dedicated server.
-Obviously, an internet connection is required.
+The first thing to do is to review the **Getting started [guide](https://bulma.io/documentation/overview/start/)**. To install bulma dependencies, there are 3 ways. For convenience, we'll choose the CDN method (content delivery network) which consists in getting dependencies from a dedicated server. 
 
 ## Build the HTML dependency
-1. The CDN url is **https://cdn.jsdelivr.net/npm/bulma@0.9.0**. Replace all `...` by anything appropriate.
+1. The CDN url is **https://cdn.jsdelivr.net/npm/bulma@0.9.0**. In code chunk below, replace `...` by anything appropriate.
 
 ```{r bulma-deps}
 bulma_deps <- htmlDependency(
@@ -31,26 +30,26 @@ bulma_deps <- htmlDependency(
 )
 ```
 
-2. Create the `add_bulma_deps` function that will attach dependencies to a given tag.
+2. Create the `add_bulma_deps` function that attaches dependencies to a given tag.
 
 ```{r attach-bulma-deps}
-add_bulma_deps <- function(...) {
+add_bulma_deps <- function(tag) {
   tagList(..., ...)
 }
 ```
 
-3. The `{charpente}` package does this automatically for you with `create_dependency`. We set `charpente_options(local = FALSE)` so that we use the CDN. Run 
+3. The `{charpente}` package does this **automatically** with `create_dependency`. We set `charpente_options(local = FALSE)` so that we use the CDN (`local = TRUE` would download and install the dependencies in a local folder). Run the following code chunk in the **R console** (it will not work with the rmarkdown run button).
 
 ```{r}
 create_dependency("bulma", options = charpente_options(local = FALSE))
 ```
 
-At the moment, `create_dependency` is not able to filter all files (You'll have to remove `bulma-rtl.min.css` or `bulma.min.css`, rtl standing for right to left).
+At the moment, `create_dependency` is not able to filter all files and you'll have to remove either `bulma-rtl.min.css` or `bulma.min.css`, rtl standing for right to left.
 
 4 Check that it works using `findDependencies`.
 
 ## Starter template
-According to the documentation, the starter template is:
+According to the [documentation](https://bulma.io/documentation/overview/start/#starter-template), the starter page template is:
 ```html
 <!DOCTYPE html>
 <html>
@@ -75,19 +74,20 @@ My first website with <strong>Bulma</strong>!
 </html>
 ```
 
-1. Adding some `{charpente}` magic and `html_2_R`, we set the path parameter to `/html` to get the entire template. Replace `...` by the appropriate content.
+1. Adding some `{charpente}` magic with `html_2_R`, we set the path parameter to `/html` to get the entire template. Replace `...` by the appropriate content. Since the copied HTML contains
+double quotations marks like `<p class="subtitle"></p>`, you'll need to put the string in single quotation marks.
 
 ```{r convert-page}
 html_2_R(
   ...,
-path = "/html",
-prefix = TRUE
+  path = "/html",
+  prefix = TRUE
 )
 ```
 
-**Note**: at run time, shiny add `html` around the UI, thereby making is not necessary to include. 
+**Note**: at run time, shiny adds `html` around the UI, thereby making is not necessary to include. 
 
-2. Create the `bulma_page` function that has 2 parameters: `...` and `title` (default to NULL). Hint: we could wrap `head` and `body` in a `tagList`.
+2. In the ./R folder, create the `bulma_page` function that has 2 parameters: `...` and `title` (default to NULL). The function body is composed of the template head and the template body. Hint: wrap `head` and `body` in a `tagList`.
 
 ```{r bulma-page}
 bulma_page <- function() {
@@ -99,7 +99,7 @@ bulma_page <- function() {
 ```
 
 
-3. Let's test it with dummy components from the documentation.
+3. Run `devtools::load_all()` and test `bulma_page` with dummy components from the documentation.
 
 ```{r bulma-app}
 ui <- bulma_page(
@@ -182,7 +182,7 @@ shinyApp(ui, server)
 
 Notice the notifications that pops up as soon as the action button is clicked.
 
-2. Inspect the `shiny::actionButton code`. Hint: you may do `trace(actionButton, edit = TRUE)`. Notice the `action-button` class.
+2. Inspect the `shiny::actionButton code`. Hint: you may run `trace(actionButton, edit = TRUE)` in the R console. Notice the `action-button` class.
 
 3. Below is a custom shiny action button where we deliberately removed the `action-button` class.
 
@@ -214,14 +214,13 @@ shinyApp(ui, server)
 
 ```
 
-We'll see it later but the **action-button** class allows our button to be interactive. The bulma button is very basic HTML
+We'll see it later but the **action-button** class allows our button to be interactive. The bulma [button](https://bulma.io/documentation/elements/button/) is a very basic piece of HTML.
 
 ```html
 <button class="button">Button</button>
 ```
 
-4. Convert the HTML code above using `html_2_R(..., prefix = TRUE)`. Add an `id` parameter
-to it. Add it **action-button** class.
+4. Create a new script in `./R` which will contain the `bulma_button` function (see below for a starting point). Convert the bulma button HTML code with `html_2_R(..., prefix = TRUE)`. Add it an `id` parameter and the **action-button** class. Once done don't forget to run `devtools::load_all()`!
 
 ```{r bulma-button}
 bulma_button <- function(inputId, label) {
@@ -241,7 +240,7 @@ ui <- bulma_page(
 shinyApp(ui, server)
 ```
 
-6. Let's add some colors: bulma offers 9 colors. The extra class is defined as `is-{color}`, for instance `is-danger`... Add a code to modify the button class.
+6. Let's add some colors: bulma offers 9 [flavors](https://bulma.io/documentation/elements/button/#colors). The extra class is defined as `is-{color}`, for instance `is-danger`... Edit the `bulma_button` function as shown below.
 
 ```{r bulma-button-color}
 bulma_button <- function(inputId, label, color = NULL) {
@@ -255,16 +254,8 @@ bulma_button <- function(inputId, label, color = NULL) {
     label
   )
 }
-
-ui <- bulma_page(
-  bulma_button("test", "Click me!", color = "warning")
-)
-
-# we keep the same server function as above with the notifications
-
-shinyApp(ui, server)
 ```
 
-7. Buttons may contains optional icons. Using `tagAppendChild` and `shiny::icon`, add an icon tag to the `bulma_button` function.
+7. Buttons may contain icons. Using `tagAppendChild` and `shiny::icon`, add an icon tag to the `bulma_button` function.
 
 8. Congrats, you've just finished assignment 1. We encourage you to create more components!
