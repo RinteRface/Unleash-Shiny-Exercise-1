@@ -2,7 +2,8 @@
 title: "shinybulma"
 author: "David Granjon"
 date: "9/27/2020"
-output: html_document
+output:
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -19,9 +20,9 @@ library(shiny)
 The first thing to do is to review the **Getting started [guide](https://bulma.io/documentation/overview/start/)**. To install bulma dependencies, there are 3 ways. For convenience, we'll choose the CDN method (content delivery network) which consists in getting dependencies from a dedicated server. 
 
 ## Build the HTML dependency
-1. The CDN url is **https://cdn.jsdelivr.net/npm/bulma@0.9.0**. In code chunk below, replace `...` by anything appropriate.
+1. The CDN url is **https://cdn.jsdelivr.net/npm/bulma@0.9.0**. In the code chunk below, replace `...` by anything appropriate.
 
-```{r bulma-deps}
+```{r bulma-deps, eval=FALSE}
 bulma_deps <- htmlDependency(
   name = ...,
   version = ...,
@@ -32,7 +33,7 @@ bulma_deps <- htmlDependency(
 
 2. Create the `add_bulma_deps` function that attaches dependencies to a given tag.
 
-```{r attach-bulma-deps}
+```{r attach-bulma-deps, eval=FALSE}
 add_bulma_deps <- function(tag) {
   tagList(..., ...)
 }
@@ -40,13 +41,14 @@ add_bulma_deps <- function(tag) {
 
 3. The `{charpente}` package does this **automatically** with `create_dependency`. We set `charpente_options(local = FALSE)` so that we use the CDN (`local = TRUE` would download and install the dependencies in a local folder). Run the following code chunk in the **R console** (it will not work with the rmarkdown run button).
 
-```{r}
+```{r, eval=FALSE}
 create_dependency("bulma", options = charpente_options(local = FALSE))
 ```
 
 At the moment, `create_dependency` is not able to filter all files and you'll have to remove either `bulma-rtl.min.css` or `bulma.min.css`, rtl standing for right to left.
 
-4 Check that it works using `findDependencies`.
+4 The `findDependencies` function allows get the targeted tag dependencies.
+Run `findDependencies(add_bulma_deps(div()))` in the console and conclude.
 
 ## Starter template
 According to the [documentation](https://bulma.io/documentation/overview/start/#starter-template), the starter page template is:
@@ -77,7 +79,7 @@ My first website with <strong>Bulma</strong>!
 1. Adding some `{charpente}` magic with `html_2_R`, we set the path parameter to `/html` to get the entire template. Replace `...` by the appropriate content. Since the copied HTML contains
 double quotations marks like `<p class="subtitle"></p>`, you'll need to put the string in single quotation marks.
 
-```{r convert-page}
+```{r convert-page, eval=FALSE}
 html_2_R(
   ...,
   path = "/html",
@@ -85,11 +87,11 @@ html_2_R(
 )
 ```
 
-**Note**: at run time, shiny adds `html` around the UI, thereby making is not necessary to include. 
+**Note**: at run time, shiny adds `html` around the UI, thereby making it not necessary to include. We 'll also don't need the `link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css")` since `add_bulma_deps` does attach the dependencies to the page.
 
-2. In the ./R folder, create the `bulma_page` function that has 2 parameters: `...` and `title` (default to NULL). The function body is composed of the template head and the template body. Hint: wrap `head` and `body` in a `tagList`.
+2. In the ./R folder, create the `bulma_page` function that has 2 parameters: `...` and `title` (default to NULL). The function body is composed of the template head and the template body. Below is a starting point. Hint: wrap `head` and `body` in a `tagList`.
 
-```{r bulma-page}
+```{r bulma-page, eval=FALSE}
 bulma_page <- function() {
   ...(
     ...,
@@ -101,7 +103,7 @@ bulma_page <- function() {
 
 3. Run `devtools::load_all()` and test `bulma_page` with dummy components from the documentation.
 
-```{r bulma-app}
+```{r bulma-app, eval=FALSE}
 ui <- bulma_page(
   title = "Bulma Design",
   HTML(
@@ -165,7 +167,7 @@ One of the most important component in every template is the **button**.
 
 1. Run the following app:
 
-```{r}
+```{r, eval=FALSE}
 ui <- fluidPage(
   tags$style("body {background-color: black}"),
   actionButton("test", "Click me!")
@@ -186,7 +188,7 @@ Notice the notifications that pops up as soon as the action button is clicked.
 
 3. Below is a custom shiny action button where we deliberately removed the `action-button` class.
 
-```{r}
+```{r, eval=FALSE}
 customActionButton <- function (inputId, label, icon = NULL, width = NULL, ...)  {
   value <- restoreInput(id = inputId, default = NULL)
   tags$button(
@@ -222,7 +224,7 @@ We'll see it later but the **action-button** class allows our button to be inter
 
 4. Create a new script in `./R` which will contain the `bulma_button` function (see below for a starting point). Convert the bulma button HTML code with `html_2_R(..., prefix = TRUE)`. Add it an `id` parameter and the **action-button** class. Once done don't forget to run `devtools::load_all()`!
 
-```{r bulma-button}
+```{r bulma-button, eval=FALSE}
 bulma_button <- function(inputId, label) {
   # your code
 }
@@ -230,7 +232,7 @@ bulma_button <- function(inputId, label) {
 
 5. Let's test it!
 
-```{r bulma-button-app}
+```{r bulma-button-app, eval=FALSE}
 ui <- bulma_page(
   bulma_button("test", "Click me!")
 )
@@ -242,7 +244,7 @@ shinyApp(ui, server)
 
 6. Let's add some colors: bulma offers 9 [flavors](https://bulma.io/documentation/elements/button/#colors). The extra class is defined as `is-{color}`, for instance `is-danger`... Edit the `bulma_button` function as shown below.
 
-```{r bulma-button-color}
+```{r bulma-button-color, eval=FALSE}
 bulma_button <- function(inputId, label, color = NULL) {
   
   button_cl <- "button action-button"
@@ -256,6 +258,6 @@ bulma_button <- function(inputId, label, color = NULL) {
 }
 ```
 
-7. Buttons may contain icons. Using `tagAppendChild` and `shiny::icon`, add an icon tag to the `bulma_button` function.
+7. Buttons may contain icons. Using `tagAppendChild` and `shiny::icon`, add an icon tag to the `bulma_button` function. Test it! What is the "problem"?
 
 8. Congrats, you've just finished assignment 1. We encourage you to create more components!
